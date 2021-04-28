@@ -41,7 +41,6 @@ struct ContentView : View, ValidationProtocol {
                         .offset(y: -10)
                         .foregroundColor(.red)
                         .accessibility(identifier:"TextError")
-                        
                 }
                 Button(action: {
                     isValid()
@@ -57,7 +56,8 @@ struct ContentView : View, ValidationProtocol {
                     .background(Color.green)
                     .cornerRadius(20.0)
                     .foregroundColor(.white)
-                    .id("LoginSuccefully")
+                    //.id("LoginSuccefully")
+                    .accessibility(identifier:"LoginSuccefully")
                     //change
                     .animation(Animation.default)
             }
@@ -132,6 +132,7 @@ struct LoginButtonContent : View {
             .frame(width: 220, height: 60)
             .background(Color.green)
             .cornerRadius(15.0)
+            .accessibility(identifier:"LoginButton")
     }
 }
 
@@ -152,6 +153,7 @@ struct UsernameTextField : View {
             .background(lightGreyColor)
             .cornerRadius(5.0)
             .padding(.bottom, 20)
+            .accessibility(identifier:"UsernameField")
     }
 }
 
@@ -172,6 +174,7 @@ struct EmailTextField : View {
         .background(lightGreyColor)
         .cornerRadius(5.0)
         .padding(.bottom, 20)
+        .accessibility(identifier:"EmailField")
     }
 }
 struct PasswordSecureField : View {
@@ -184,6 +187,7 @@ struct PasswordSecureField : View {
             .background(lightGreyColor)
             .cornerRadius(5.0)
             .padding(.bottom, 20)
+            .accessibility(identifier:"PasswordField")
             
     }
 }
