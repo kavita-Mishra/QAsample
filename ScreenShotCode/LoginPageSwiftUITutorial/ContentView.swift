@@ -11,12 +11,16 @@ import SwiftUI
 let lightGreyColor = Color(red: 239.0/255.0, green: 243.0/255.0, blue: 244.0/255.0, opacity: 1.0)
 
 let storedUsername = "Myusername"
+let storedEmail = "email@gmail.com"
 let storedPassword = "Mypassword"
 
-struct ContentView : View {
+struct ContentView : View, ValidationProtocol {
     
     @State var username: String = ""
+    @State var email: String = ""
     @State var password: String = ""
+    
+    @State var error: String = ""
     
     @State var authenticationDidFail: Bool = false
     @State var authenticationDidSucceed: Bool = false
@@ -24,25 +28,22 @@ struct ContentView : View {
     @State var editingMode: Bool = false
     
     var body: some View {
-        
+        ScrollView {
         ZStack {
             VStack {
                 WelcomeText()
                 UserImage()
                 UsernameTextField(username: $username, editingMode: $editingMode)
+                EmailTextField(email: $email, editingMode: $editingMode)
                 PasswordSecureField(password: $password)
                 if authenticationDidFail {
-                    Text("Information not correct. Try again.")
+                    Text(error)
                         .offset(y: -10)
                         .foregroundColor(.red)
+                        .accessibility(identifier:"TextError")
                 }
                 Button(action: {
-                    if self.username == storedUsername && self.password == storedPassword {
-                        self.authenticationDidSucceed = true
-                        self.authenticationDidFail = false
-                    } else {
-                        self.authenticationDidFail = true
-                    }
+                    isValid()
                 }) {
                     LoginButtonContent()
                 }
@@ -55,16 +56,49 @@ struct ContentView : View {
                     .background(Color.green)
                     .cornerRadius(20.0)
                     .foregroundColor(.white)
+                    //.id("LoginSuccefully")
+                    .accessibility(identifier:"LoginSuccefully")
                     //change
                     .animation(Animation.default)
             }
         }
             .offset(y: editingMode ? -150 : 0)
+        }
     }
+    
+    // Business logic
+        
+    func isValid() {
+        if let error = validateFields() {
+            self.error = error.localizedDescription
+            self.authenticationDidFail = true
+        } else {
+            self.authenticationDidSucceed = true
+            self.authenticationDidFail = false
+        }
+    }
+    
+    func validateFields() -> Error? {
+        if case .failure(let error) = isValid(value: username, .username) {
+            return error
+        }
+        else if case .failure(let error) = isValid(value: email, .email) {
+            return error
+        }
+        else if case .failure(let error) = isValid(value: password, .password) {
+            return error
+        }
+        
+        if !(self.username == storedUsername
+            && self.email == storedEmail
+            && self.password == storedPassword) {
+            return ValidationError("Information not correct. Try again.")
+        }
+
+        return nil
+    }
+
 }
-
-
-
 struct WelcomeText : View {
     var body: some View {
         return Text("Welcome!")
@@ -73,6 +107,7 @@ struct WelcomeText : View {
             .padding(.bottom, 20)
     }
 }
+
 
 struct UserImage : View {
     var body: some View {
@@ -83,6 +118,7 @@ struct UserImage : View {
             .clipped()
             .cornerRadius(150)
             .padding(.bottom, 75)
+            .id("username error")
     }
 }
 
@@ -96,6 +132,7 @@ struct LoginButtonContent : View {
             .frame(width: 220, height: 60)
             .background(Color.green)
             .cornerRadius(15.0)
+            .accessibility(identifier:"LoginButton")
     }
 }
 
@@ -116,9 +153,30 @@ struct UsernameTextField : View {
             .background(lightGreyColor)
             .cornerRadius(5.0)
             .padding(.bottom, 20)
+            .accessibility(identifier:"UsernameField")
     }
 }
 
+struct EmailTextField : View {
+    
+    @Binding var email: String
+    
+    @Binding var editingMode: Bool
+    
+    var body: some View {
+        return TextField("Email", text: $email, onEditingChanged: {edit in
+            if edit == true
+            {self.editingMode = true}
+            else
+            {self.editingMode = false}
+        }).keyboardType(.emailAddress)
+        .padding()
+        .background(lightGreyColor)
+        .cornerRadius(5.0)
+        .padding(.bottom, 20)
+        .accessibility(identifier:"EmailField")
+    }
+}
 struct PasswordSecureField : View {
     
     @Binding var password: String
@@ -129,5 +187,7 @@ struct PasswordSecureField : View {
             .background(lightGreyColor)
             .cornerRadius(5.0)
             .padding(.bottom, 20)
+            .accessibility(identifier:"PasswordField")
+            
     }
 }
